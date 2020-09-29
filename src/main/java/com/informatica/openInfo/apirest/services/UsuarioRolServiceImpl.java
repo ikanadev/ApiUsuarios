@@ -13,6 +13,7 @@ import com.informatica.openInfo.apirest.models.embedKeys.UsuarioRolKey;
 @Service
 public class UsuarioRolServiceImpl implements IUsuarioRolService{
 	
+	
 	@Autowired
 	public IUsuarioRolDao usuarioRolDao;
 
@@ -45,9 +46,7 @@ public class UsuarioRolServiceImpl implements IUsuarioRolService{
 		// TODO Auto-generated method stub
 		usuarioRolDao.deleteById(id);
 	}
-
-
-
+	
 
 
 }

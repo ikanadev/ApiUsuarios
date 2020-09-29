@@ -1,8 +1,14 @@
 package com.informatica.openInfo.apirest.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,26 +48,40 @@ public class UsuariosRolesRestController {
 	 * 
 	 * */
 	@GetMapping("/usuarios")
-	public List<Usuario> findAll() {
-		// TODO Auto-generated method stub
-		return (List<Usuario>) usuarioService.findAll();
+	public ResponseEntity<?> findAll() {
+		Map<String, Object> response = new HashMap<>();
+		List<Usuario> usuarios = null;
+		try {
+			usuarios=usuarioService.findAll();
+		} catch(DataAccessException e) {
+			response.put("mensaje", "Error al realizar la consulta en la base de datos");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		if(usuarios.isEmpty()) {
+			response.put("mensaje", "No existen contactos registrados");
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+		}
+		response.put("data", usuarios);
+		return new ResponseEntity<Map<String, Object>> (response,HttpStatus.OK);
 	}
 
 	@GetMapping("/usuarios/{codRegistro}")
 	public Usuario findById(@PathVariable String codRegistro) {
-		// TODO Auto-generated method stub
+
 		return usuarioService.findById(codRegistro);
 	}
 
 	@PostMapping("/usuarios")
 	public Usuario save(@RequestBody Usuario usuario) {
-		// TODO Auto-generated method stub
+
 		return usuarioService.save(usuario);
 	}
 
 	@DeleteMapping("/usuarios/{id}")
 	public void delete(@PathVariable String id) {
-		// TODO Auto-generated method stub
+	
 		usuarioService.delete(id);
 		
 	}
@@ -118,10 +138,19 @@ public class UsuariosRolesRestController {
 		return usuarioRolService.buscarPorRol(idRol);
 	}
 
-	@PostMapping("/usuariosRoles")
-	public UsuarioRol save(@RequestBody UsuarioRol rol) {
+	@PostMapping("/usuariosRoles/{codRegistro}/{rol}")
+	public UsuarioRol save(@PathVariable String codRegistro, @PathVariable Long rol) {
 		// TODO Auto-generated method stub
-		return usuarioRolService.save(rol);
+		Usuario user= usuarioService.findById(codRegistro);
+		Rol role = rolService.findById(rol);
+		UsuarioRolKey clave=new UsuarioRolKey();
+		clave.setCodRegistro(codRegistro);
+		clave.setIdRol(rol);
+		UsuarioRol asigna = new UsuarioRol();
+		asigna.setId(clave);
+		asigna.setRol(role);
+		asigna.setUsuario(user);
+		return usuarioRolService.save(asigna);
 	}
 
 	@DeleteMapping("/usuariosRoles/{id}")
@@ -129,5 +158,5 @@ public class UsuariosRolesRestController {
 		// TODO Auto-generated method stub
 		usuarioRolService.delete(id);
 	}
-
+	
 }

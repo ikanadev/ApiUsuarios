@@ -6,4 +6,5 @@ import com.informatica.openInfo.apirest.models.Rol;
 
 public interface IRolDao extends CrudRepository<Rol, Long>{
 
+	
 }

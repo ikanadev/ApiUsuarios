@@ -9,6 +9,7 @@ import com.informatica.openInfo.apirest.Dao.IUsuarioDao;
 import com.informatica.openInfo.apirest.models.Usuario;
 
 @Service
+
 public class UsuarioServiceImpl implements IUsuarioService{
 	
 	@Autowired
