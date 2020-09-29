@@ -8,15 +8,12 @@ import lombok.Data;
 
 @Embeddable
 @Data
-public class UsuarioRolKey implements Serializable{
+public class EquipoActividadKey implements Serializable{
 	
-	private String codRegistro;
+	private Long idEquipo;
 	
-	private Long idRol;
-
+	private String idActividad;
+	
 	private static final long serialVersionUID = 1L;
-
-	
-	
 
 }
