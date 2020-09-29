@@ -1,6 +1,7 @@
 package com.informatica.openInfo.apirest.models;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
@@ -24,7 +25,7 @@ public class UsuarioRol implements Serializable{
 	private UsuarioRolKey id;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
-	@MapsId("pCodRegistro")
+	@MapsId("codRegistro")
 	@JsonIdentityReference(alwaysAsId = true)
 	private Usuario usuario;
 	
@@ -34,6 +35,8 @@ public class UsuarioRol implements Serializable{
 	private Rol rol;
 	
 	private String password;
+	
+	private boolean habilitado;
 	
 	private static final long serialVersionUID = 1L;
 
