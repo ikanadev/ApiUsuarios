@@ -1,5 +1,6 @@
 package com.informatica.openInfo.apirest.controllers;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +10,19 @@ import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.informatica.openInfo.apirest.models.Rol;
@@ -28,69 +36,110 @@ import com.informatica.openInfo.apirest.services.IUsuarioService;
 @RestController
 @RequestMapping("/admin")
 public class UsuariosRolesRestController {
-	
-	/*
-	 * IDP services
-	 * 
-	 * */
+
 	@Autowired
-	private IUsuarioService usuarioService; 
-	
+	private IUsuarioService usuarioService;
+
 	@Autowired
-	private IRolService rolService; 
-	
+	private IRolService rolService;
+
 	@Autowired
-	private IUsuarioRolService usuarioRolService; 
-	
-	
+	private IUsuarioRolService usuarioRolService;
+
 	/*
 	 * SERVICIOS CRUD USUARIOS
 	 * 
-	 * */
+	 */
 	@GetMapping("/usuarios")
 	public ResponseEntity<?> findAll() {
 		Map<String, Object> response = new HashMap<>();
 		List<Usuario> usuarios = null;
 		try {
-			usuarios=usuarioService.findAll();
-		} catch(DataAccessException e) {
+			usuarios = usuarioService.findAll();
+		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar la consulta en la base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
-		if(usuarios.isEmpty()) {
+
+		if (usuarios.isEmpty()) {
 			response.put("mensaje", "No existen contactos registrados");
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 		}
 		response.put("data", usuarios);
-		return new ResponseEntity<Map<String, Object>> (response,HttpStatus.OK);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_COMISION" })
 	@GetMapping("/usuarios/{codRegistro}")
-	public Usuario findById(@PathVariable String codRegistro) {
+	public ResponseEntity<?> findById(@PathVariable String codRegistro) {
 
-		return usuarioService.findById(codRegistro);
+		Usuario usuario = null;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			usuario = usuarioService.findById(codRegistro);
+
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al realizar la consulta en la base de datos");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		if (usuario == null) {
+			response.put("mensaje", "El usuario ID: ".concat(codRegistro).concat(" no existe en la base de datos"));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+		}
+		response.put("data", usuario);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/usuarios")
-	public Usuario save(@RequestBody Usuario usuario) {
+	@Secured({ "ROLE_ADMIN", "ROLE_COMISION" })
+	public ResponseEntity<?> save(@RequestBody Usuario usuario) {
 
-		return usuarioService.save(usuario);
+		Usuario nuevoUsuario = null;
+		Map<String, Object> response = new HashMap<>();
+		try {
+
+			nuevoUsuario = usuarioService.findById(usuario.getCodRegistro());
+
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al insertar en la base de datos");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		if (nuevoUsuario != null) {
+			response.put("error", "el usuario ya se encuentra registrado");
+		} else {
+			nuevoUsuario = usuarioService.save(usuario);
+			response.put("mensaje", "El usuario fue creado con exito");
+			response.put("data", nuevoUsuario);
+		}
+
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/usuarios/{id}")
-	public void delete(@PathVariable String id) {
-	
-		usuarioService.delete(id);
-		
+	public ResponseEntity<?> delete(@PathVariable String id) {
+		Map<String, Object> response = new HashMap<>();
+
+		try {
+			usuarioService.delete(id);
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al eliminar el usuario de la base de datos");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		response.put("mensaje", "el cliente fue eliminado con exito");
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	
+
 	/*
 	 * SERVICIOS CRUD ROLES
 	 * 
-	 * */
-	
+	 */
+
 	@GetMapping("/roles")
 	public List<Rol> findAllRol() {
 		// TODO Auto-generated method stub
@@ -102,7 +151,7 @@ public class UsuariosRolesRestController {
 		// TODO Auto-generated method stub
 		return rolService.findById(id);
 	}
-	
+
 	@PostMapping("/roles")
 	public Rol save(@RequestBody Rol rol) {
 		// TODO Auto-generated method stub
@@ -114,11 +163,11 @@ public class UsuariosRolesRestController {
 		// TODO Auto-generated method stub
 		rolService.delete(id);
 	}
-	
+
 	/*
 	 * SERVICIOS USUARIOS-ROLES
 	 * 
-	 * */
+	 */
 
 	@GetMapping("/usuariosRoles")
 	public List<UsuarioRol> findAllUsuariosRoles() {
@@ -131,7 +180,7 @@ public class UsuariosRolesRestController {
 		// TODO Auto-generated method stub
 		return usuarioRolService.buscarPorUsuario(codUsuario);
 	}
-	
+
 	@GetMapping("/usuariosporRol/{idRol}")
 	public UsuarioRol buscarPorRol(@PathVariable Long idRol) {
 		// TODO Auto-generated method stub
@@ -141,9 +190,9 @@ public class UsuariosRolesRestController {
 	@PostMapping("/usuariosRoles/{codRegistro}/{rol}")
 	public UsuarioRol save(@PathVariable String codRegistro, @PathVariable Long rol) {
 		// TODO Auto-generated method stub
-		Usuario user= usuarioService.findById(codRegistro);
+		Usuario user = usuarioService.findById(codRegistro);
 		Rol role = rolService.findById(rol);
-		UsuarioRolKey clave=new UsuarioRolKey();
+		UsuarioRolKey clave = new UsuarioRolKey();
 		clave.setCodRegistro(codRegistro);
 		clave.setIdRol(rol);
 		UsuarioRol asigna = new UsuarioRol();
@@ -158,5 +207,12 @@ public class UsuariosRolesRestController {
 		// TODO Auto-generated method stub
 		usuarioRolService.delete(id);
 	}
+
+	/*
+	 * MANEJO TOKENS
+	 * 
+	 */
+
+
 	
 }

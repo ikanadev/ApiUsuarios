@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -28,6 +29,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
 		
 		security.tokenKeyAccess("permitAll()")
+		.allowFormAuthenticationForClients()
 		.checkTokenAccess("isAuthenticated()");
 	}
 
@@ -37,9 +39,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		clients.inMemory().withClient("svelteapp") //nombre de aplicacion
 		.secret(passwordEncoder.encode("12345"))		//contraseña de la app cliente
 		.scopes("read", "write")
-		.authorizedGrantTypes("password", "refresh_token");
-		//.accessTokenValiditySeconds(360000)
-		//.refreshTokenValiditySeconds(360000);
+		.authorizedGrantTypes("password", "refresh_token")
+		.accessTokenValiditySeconds(3600000)
+		.refreshTokenValiditySeconds(3600000);
 	}
 
 	@Override
