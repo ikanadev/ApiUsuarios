@@ -22,15 +22,13 @@ import com.informatica.openInfo.apirest.models.embedKeys.UsuarioRolKey;
 
 
 @Service
-public class UsuarioRolServiceImpl implements IUsuarioRolService, UserDetailsService{
+public class UsuarioRolServiceImpl implements IUsuarioRolService{
 	
 	
-	private Logger logger = org.slf4j.LoggerFactory.getLogger(UsuarioRolServiceImpl.class);
+	
 	@Autowired
 	private IUsuarioRolDao usuarioRolDao;
 	
-	@Autowired
-	private IRolDao rolDao;
 	
 
 	@Override
@@ -61,25 +59,6 @@ public class UsuarioRolServiceImpl implements IUsuarioRolService, UserDetailsSer
 	public void delete(UsuarioRolKey id) {
 		// TODO Auto-generated method stub
 		usuarioRolDao.deleteById(id);
-	}
-
-
-	@Override
-	@Transactional(readOnly = true)
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		// TODO Auto-generated method stub
-		UsuarioRol usuario = usuarioRolDao.buscarPorUsuario(username);
-		if(usuario == null) {
-			logger.error("Error de login: No existe el usuario"+username+ " en el sistema");
-			throw new UsernameNotFoundException("Error de login: No existe el usuario"+username+ " en el sistema");
-		}
-		List<Rol> rolesUser= rolDao.rolesDeUsuario(username);
-		List<GrantedAuthority> authorities= rolesUser.stream()
-				.map(role -> new SimpleGrantedAuthority(role.getTipo()))
-				.peek(authority ->   logger.info("Role: "+authority.getAuthority()))
-				.collect(Collectors.toList());
-		
-		return new User(usuario.getId().getCodRegistro(), usuario.getPassword(), usuario.isHabilitado(), true, true, true, authorities);
 	}
 	
 

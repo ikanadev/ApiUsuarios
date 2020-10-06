@@ -44,7 +44,9 @@ public class Usuario implements Serializable{
 	
 	private String ocupacion;
 	
-	private String usuarioEnable;
+	private boolean habilitado;
+	
+	private String password;
 	
 	private Date createAt;
 	

@@ -30,10 +30,6 @@ public class UsuarioRol implements Serializable{
 	@JsonIdentityReference(alwaysAsId = true)
 	private Rol rol;
 	
-	private String password;
-	
-	private boolean habilitado;
-	
 	private Date createAt;
 	
 	@PrePersist

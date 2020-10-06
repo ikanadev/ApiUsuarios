@@ -10,6 +10,8 @@ public interface IUsuarioService {
 	
 	public Usuario findById(String codRegistro);
 	
+	public Usuario findByCorreo(String correo);
+	
 	public Usuario save(Usuario usuario);
 	
 	public void delete(String id);
