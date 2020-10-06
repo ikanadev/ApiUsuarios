@@ -1,43 +1,55 @@
 package com.informatica.openInfo.apirest.models;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalTime;
-
+import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-
+import javax.persistence.PrePersist;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import lombok.Data;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Getter @Setter @NoArgsConstructor
+@Data
 public class Actividad implements Serializable{
 	
 	@Id
 	private String idActividad;
 	
-	private String nombre;
+	private String titulo;
 	
 	private String descripcion;
 	
-	private LocalDate fecha;
+	private String banner;
 	
-	private LocalTime hora;
+	private String linkVideo;
+	
+	private Date fecha;
+	
+	private Date hora;
 	
 	private boolean habilitado;
 	
-	private String video;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JsonIdentityReference(alwaysAsId = true)
+	private TipoActividad tipoActividad;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JsonIdentityReference(alwaysAsId = true)
-	private TipoActividad tipo;
+	private TipoProyecto tipoProyecto;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JsonIdentityReference(alwaysAsId = true)
+	private Gestion gestion;
+	
+	private Date createAt;
+	
+	@PrePersist
+	public void prePersist() {
+		createAt=new Date();
+	}
 	
 	private static final long serialVersionUID = 1L;
 	

@@ -2,6 +2,7 @@ package com.informatica.openInfo.apirest.models;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -28,21 +30,28 @@ public class Usuario implements Serializable{
 	@Column(unique = true)
 	public String codRegistro;
 	
-	private String nombreCompleto;
+	private String nombre;
 	
 	private String sexo;
 	
 	private String correo;
 	
-	private String telefono;
+	private String pais;
 	
-	private String foto;
+	private String departamento;
 	
 	private String institucion;
 	
-	private String habilitado;
+	private String ocupacion;
 	
-	private LocalDateTime createAt;
+	private String usuarioEnable;
+	
+	private Date createAt;
+	
+	@PrePersist
+	public void prePersist() {
+		createAt=new Date();
+	}
 	
 	private static final long serialVersionUID = 1L;
 

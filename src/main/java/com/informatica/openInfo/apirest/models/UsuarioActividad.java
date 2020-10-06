@@ -8,17 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.PrePersist;
-
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.informatica.openInfo.apirest.models.embedKeys.UsuarioRolKey;
+import com.informatica.openInfo.apirest.models.embedKeys.UsuarioActividadKey;
 import lombok.Data;
 
 @Entity
 @Data
-public class UsuarioRol implements Serializable{
-	
+public class UsuarioActividad implements Serializable{
+
 	@EmbeddedId
-	private UsuarioRolKey id;
+	private UsuarioActividadKey id;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@MapsId("codRegistro")
@@ -26,13 +25,9 @@ public class UsuarioRol implements Serializable{
 	private Usuario usuario;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
-	@MapsId("idRol")
+	@MapsId("idActividad")
 	@JsonIdentityReference(alwaysAsId = true)
-	private Rol rol;
-	
-	private String password;
-	
-	private boolean habilitado;
+	private Actividad actividad;
 	
 	private Date createAt;
 	

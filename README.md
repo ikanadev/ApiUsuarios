@@ -13,5 +13,6 @@
 	mvn spring-boot:start
 	
 * Ejecutar desde eclipse 
+instalar lombok https://projectlombok.org/download
 instalar Spring tool suite https://spring.io/tools 
 Import proyect in SpringToolSuite and run as SpringBootApp 

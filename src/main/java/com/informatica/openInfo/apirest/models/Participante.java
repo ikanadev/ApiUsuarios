@@ -1,33 +1,35 @@
 package com.informatica.openInfo.apirest.models;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
+import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.PrimaryKeyJoinColumn;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 @Entity
-@Getter 
-@Setter 
-@NoArgsConstructor
+@Data
 @PrimaryKeyJoinColumn(name = "idParticipante")
-public class Participante extends Usuario implements Serializable {
+public class Participante extends Usuario  {
 
-	private String grado;
+	private String ci;
+	
+	private String foto;
+	
+	private String gradoAcademico;
 	
 	private String contacto2;
 	
 	private String contacto3;
 	
-	private String habilita;
+	private String participanteEnable;
 	
-	private LocalDateTime createAt;
+	private Date createdAt;
+	
+	@PrePersist
+	public void prePersist() {
+		createdAt=new Date();
+	}
 	
 	
 	private static final long serialVersionUID = 1L;
